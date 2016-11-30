@@ -50,7 +50,7 @@
     (set (make-local-variable 'tab-stop-list)
          (number-sequence my-tab-width 200 my-tab-width))))
 
-(add-hook 'php-mode-hook 'my-php-mode-hook)
+;;(add-hook 'php-mode-hook 'my-php-mode-hook)
 
 ;; enable ido
 (require 'ido)
@@ -61,3 +61,12 @@
 (recentf-mode 1)
 (setq recentf-max-menu-item 10)
 (global-set-key (kbd "C-x C-r") 'recentf-open-files)
+(global-set-key (kbd "C-x f") 'other-frame)
+
+;; set tab
+;; If you don’t want tabs, add (setq-default indent-tabs-mode nil) in your .emacs
+;; If you want to indent only with tabs, use: (setq indent-tabs-mode t). Moreover you might need to call (web-mode-use-tabs) in your web-mode hook.
+;; TAB width can be set this way: (setq-default tab-width 4)
+;; http://web-mode.org/
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
