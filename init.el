@@ -3,6 +3,7 @@
 
 ;; Package Management
 (require 'init-packages)
+(require 'init-web-mode)
 
 ;; js2-mode init
 (setq auto-mode-alist
@@ -41,16 +42,37 @@
 (require 'hlinum)
 (hlinum-activate)
 
-;; php indent with tab 
-(defun my-php-mode-hook ()
-  (setq indent-tabs-mode t)
-  (let ((my-tab-width 4))
-    (setq tab-width my-tab-width)
-    (setq c-basic-indent my-tab-width)
-    (set (make-local-variable 'tab-stop-list)
-         (number-sequence my-tab-width 200 my-tab-width))))
+;; php indentation
+;; https://www.emacswiki.org/emacs/PhpMode#toc18
+(add-hook 'php-mode-hook (lambda ()
+    (defun ywb-php-lineup-arglist-intro (langelem)
+      (save-excursion
+        (goto-char (cdr langelem))
+        (vector (+ (current-column) c-basic-offset))))
+    (defun ywb-php-lineup-arglist-close (langelem)
+      (save-excursion
+        (goto-char (cdr langelem))
+        (vector (current-column))))
+    (c-set-offset 'arglist-intro 'ywb-php-lineup-arglist-intro)
+    (c-set-offset 'arglist-close 'ywb-php-lineup-arglist-close)))
 
-;;(add-hook 'php-mode-hook 'my-php-mode-hook)
+(defun unindent-closure ()
+  "Fix php-mode indent for closures"
+  (let ((syntax (mapcar 'car c-syntactic-context)))
+    (if (and (member 'arglist-cont-nonempty syntax)
+             (or
+              (member 'statement-block-intro syntax)
+              (member 'brace-list-intro syntax)
+              (member 'brace-list-close syntax)
+              (member 'block-close syntax)))
+       (save-excursion
+          (beginning-of-line)
+          (delete-char (* (count 'arglist-cont-nonempty syntax)
+                          c-basic-offset))) )))
+
+(add-hook 'php-mode-hook
+          (lambda ()
+            (add-hook 'c-special-indent-hook 'unindent-closure)))
 
 ;; enable ido
 (require 'ido)
